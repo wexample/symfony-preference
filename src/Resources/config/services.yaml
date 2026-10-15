@@ -1,0 +1,18 @@
+parameters:
+    # Where preferences are kept (Enum\PreferenceStorage): the session, or the
+    # database per user (`user`) or for everybody (`shared`, a tool without
+    # accounts).
+    wexample_symfony_preference.storage: session
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Wexample\SymfonyPreference\:
+        resource: '../../{Repository,Service}'
+
+    Wexample\SymfonyPreference\Api\Controller\:
+        resource: '../../Api/Controller/'
+        tags: ['controller.service_arguments']

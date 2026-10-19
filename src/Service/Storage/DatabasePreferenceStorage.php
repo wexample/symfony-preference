@@ -4,12 +4,12 @@ namespace Wexample\SymfonyPreference\Service\Storage;
 
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\Service\ResetInterface;
 use Wexample\SymfonyPreference\DependencyInjection\WexampleSymfonyPreferenceExtension;
 use Wexample\SymfonyPreference\Entity\Preference;
 use Wexample\SymfonyPreference\Enum\PreferenceStorage;
 use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
 use Wexample\SymfonyPreference\Repository\PreferenceRepository;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The database: preferences follow a user from one machine to another

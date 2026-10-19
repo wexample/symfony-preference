@@ -9,6 +9,7 @@ use Wexample\SymfonyPreference\Entity\Preference;
 use Wexample\SymfonyPreference\Enum\PreferenceStorage;
 use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
 use Wexample\SymfonyPreference\Repository\PreferenceRepository;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The database: preferences follow a user from one machine to another
@@ -19,7 +20,7 @@ use Wexample\SymfonyPreference\Repository\PreferenceRepository;
  * A page reads many keys and writes few: the rows of the owner are read once
  * per request and written one at a time.
  */
-class DatabasePreferenceStorage implements PreferenceStorageInterface
+class DatabasePreferenceStorage implements PreferenceStorageInterface, ResetInterface
 {
     private const SHARED_OWNER = '';
 
@@ -36,6 +37,15 @@ class DatabasePreferenceStorage implements PreferenceStorageInterface
         string $storage,
     ) {
         $this->shared = PreferenceStorage::Shared === PreferenceStorage::from($storage);
+    }
+
+    /**
+     * Read once per request: kept by a worker, a preference changed elsewhere
+     * would never be seen again.
+     */
+    public function reset(): void
+    {
+        $this->loaded = [];
     }
 
     public function get(string $key, mixed $default = null): mixed

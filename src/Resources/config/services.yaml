@@ -12,7 +12,3 @@ services:
 
     Wexample\SymfonyPreference\:
         resource: '../../{Repository,Service}'
-
-    Wexample\SymfonyPreference\Api\Controller\:
-        resource: '../../Api/Controller/'
-        tags: ['controller.service_arguments']

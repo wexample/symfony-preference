@@ -8,7 +8,7 @@ use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
  * What a visitor chose and expects to find again: a menu folded, a zone
  * dragged wider, a filter kept. Kept where the app chose
  * (`wexample_symfony_preference.storage`, see PreferenceStorage), written by
- * the client through PreferenceController and read back while a page is
+ * the client through symfony-platform's PreferenceController and read back while a page is
  * drawn, so it arrives as it was left; both ends go through this service,
  * which is why changing the storage needs nothing on the client.
  *

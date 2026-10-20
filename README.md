@@ -1,6 +1,6 @@
 # symfony-preference
 
-Version: 2.0.0
+Version: 2.0.1
 
 Preferences kept per owner — a user, or everybody — in the session or the database
 
@@ -27,7 +27,7 @@ The suite includes packages for configuration management, file handling, prompts
 - doctrine/orm: ^3.0
 - symfony/security-bundle: ^7.4 || ^8.0
 - symfony/validator: ^7.4 || ^8.0
-- wexample/symfony-helpers: >=17.0.0
+- wexample/symfony-helpers: >=18.0.0
 
 ## Versioning & Compatibility Policy
 

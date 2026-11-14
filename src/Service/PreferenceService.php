@@ -2,6 +2,7 @@
 
 namespace Wexample\SymfonyPreference\Service;
 
+use Wexample\SymfonyPreference\Interface\BatchPreferenceStorageInterface;
 use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
 
 /**
@@ -53,6 +54,12 @@ class PreferenceService
      */
     public function set(array $values): void
     {
+        if ($this->storage instanceof BatchPreferenceStorageInterface) {
+            $this->storage->setMany($values);
+
+            return;
+        }
+
         foreach ($values as $key => $value) {
             $this->storage->set((string) $key, $value);
         }

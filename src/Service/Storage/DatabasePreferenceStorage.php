@@ -8,7 +8,7 @@ use Symfony\Contracts\Service\ResetInterface;
 use Wexample\SymfonyPreference\DependencyInjection\WexampleSymfonyPreferenceExtension;
 use Wexample\SymfonyPreference\Entity\Preference;
 use Wexample\SymfonyPreference\Enum\PreferenceStorage;
-use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
+use Wexample\SymfonyPreference\Interface\BatchPreferenceStorageInterface;
 use Wexample\SymfonyPreference\Repository\PreferenceRepository;
 
 /**
@@ -18,9 +18,9 @@ use Wexample\SymfonyPreference\Repository\PreferenceRepository;
  * their own and keeps theirs in the session.
  *
  * A page reads many keys and writes few: the rows of the owner are read once
- * per request and written one at a time.
+ * per request, and the keys written together are flushed together.
  */
-class DatabasePreferenceStorage implements PreferenceStorageInterface, ResetInterface
+class DatabasePreferenceStorage implements BatchPreferenceStorageInterface, ResetInterface
 {
     private const SHARED_OWNER = '';
 
@@ -77,32 +77,51 @@ class DatabasePreferenceStorage implements PreferenceStorageInterface, ResetInte
 
     public function set(string $key, mixed $value): void
     {
+        $this->setMany([$key => $value]);
+    }
+
+    public function setMany(array $values): void
+    {
         $owner = $this->owner();
 
         if (null === $owner) {
-            $this->session->set($key, $value);
-
-            return;
-        }
-
-        $preference = $this->preferences($owner)[$key] ?? null;
-
-        if (null === $value) {
-            if ($preference) {
-                $this->repository->remove($preference);
-                unset($this->loaded[$owner][$key]);
+            foreach ($values as $key => $value) {
+                $this->session->set((string) $key, $value);
             }
 
             return;
         }
 
-        if (! $preference) {
-            $preference = $this->repository->createNewPreference($owner, $key);
-            $this->loaded[$owner][$key] = $preference;
+        $changed = false;
+
+        foreach ($values as $key => $value) {
+            $key = (string) $key;
+            $preference = $this->preferences($owner)[$key] ?? null;
+
+            if (null === $value) {
+                if ($preference) {
+                    $this->repository->remove($preference, flush: false);
+                    unset($this->loaded[$owner][$key]);
+                    $changed = true;
+                }
+
+                continue;
+            }
+
+            if (! $preference) {
+                $preference = $this->repository->createNewPreference($owner, $key);
+                $this->loaded[$owner][$key] = $preference;
+            }
+
+            $preference->setValue($value);
+            $this->repository->save($preference, flush: false);
+            $changed = true;
         }
 
-        $preference->setValue($value);
-        $this->repository->save($preference);
+        // Forgetting a key never kept writes nothing: no flush for it.
+        if ($changed) {
+            $this->repository->flush();
+        }
     }
 
     /**

@@ -21,6 +21,14 @@ class PreferenceRepository extends AbstractRepository
     }
 
     /**
+     * Writes what save() and remove() were told without flushing.
+     */
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    /**
      * @return array<string, Preference> keyed by preference key
      */
     public function findByOwnerIndexed(string $owner): array

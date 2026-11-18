@@ -8,14 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 use Wexample\SymfonyPreference\Entity\Preference;
 use Wexample\SymfonyPreference\Repository\PreferenceRepository;
 use Wexample\SymfonyPreference\Service\PreferenceService;
 use Wexample\SymfonyPreference\Service\Storage\DatabasePreferenceStorage;
-use Wexample\SymfonyPreference\Service\Storage\SessionPreferenceStorage;
+use Wexample\SymfonyPreference\Service\Storage\CookiePreferenceStorage;
 
 /**
  * Preferences written together reach the database in one flush; forgetting
@@ -70,7 +68,7 @@ class DatabasePreferenceStorageTest extends TestCase
         $this->assertSame('dark', $storage->get('ui.color_scheme'));
     }
 
-    public function testAVisitorNotSignedInKeepsThemInTheSession(): void
+    public function testAVisitorNotSignedInKeepsThemInACookie(): void
     {
         $repository = $this->createMock(PreferenceRepository::class);
         $repository->expects($this->never())->method('flush');
@@ -87,10 +85,9 @@ class DatabasePreferenceStorageTest extends TestCase
         $security->method('getUser')->willReturn($username ? new InMemoryUser($username, null) : null);
 
         $request = new Request();
-        $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        return new DatabasePreferenceStorage($repository, $security, new SessionPreferenceStorage($requestStack), 'user');
+        return new DatabasePreferenceStorage($repository, $security, new CookiePreferenceStorage($requestStack), 'user');
     }
 }

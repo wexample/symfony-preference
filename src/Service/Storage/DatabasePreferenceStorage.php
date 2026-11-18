@@ -15,7 +15,7 @@ use Wexample\SymfonyPreference\Repository\PreferenceRepository;
  * The database: preferences follow a user from one machine to another
  * (PreferenceStorage::User), or are the one set of a tool without accounts
  * (PreferenceStorage::Shared). Per user, a visitor not signed in has no row of
- * their own and keeps theirs in the session.
+ * their own and keeps theirs in a cookie.
  *
  * A page reads many keys and writes few: the rows of the owner are read once
  * per request, and the keys written together are flushed together.
@@ -32,7 +32,7 @@ class DatabasePreferenceStorage implements BatchPreferenceStorageInterface, Rese
     public function __construct(
         private readonly PreferenceRepository $repository,
         private readonly Security $security,
-        private readonly SessionPreferenceStorage $session,
+        private readonly CookiePreferenceStorage $anonymous,
         #[Autowire(param: WexampleSymfonyPreferenceExtension::PARAMETER_STORAGE)]
         string $storage,
     ) {
@@ -53,7 +53,7 @@ class DatabasePreferenceStorage implements BatchPreferenceStorageInterface, Rese
         $owner = $this->owner();
 
         if (null === $owner) {
-            return $this->session->get($key, $default);
+            return $this->anonymous->get($key, $default);
         }
 
         $preference = $this->preferences($owner)[$key] ?? null;
@@ -66,7 +66,7 @@ class DatabasePreferenceStorage implements BatchPreferenceStorageInterface, Rese
         $owner = $this->owner();
 
         if (null === $owner) {
-            return $this->session->all();
+            return $this->anonymous->all();
         }
 
         return array_map(
@@ -85,9 +85,7 @@ class DatabasePreferenceStorage implements BatchPreferenceStorageInterface, Rese
         $owner = $this->owner();
 
         if (null === $owner) {
-            foreach ($values as $key => $value) {
-                $this->session->set((string) $key, $value);
-            }
+            $this->anonymous->setMany($values);
 
             return;
         }

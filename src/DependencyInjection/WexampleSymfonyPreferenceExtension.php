@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Wexample\SymfonyHelpers\DependencyInjection\AbstractWexampleSymfonyExtension;
 use Wexample\SymfonyPreference\Enum\PreferenceStorage;
 use Wexample\SymfonyPreference\Interface\PreferenceStorageInterface;
+use Wexample\SymfonyPreference\Service\Storage\CookiePreferenceStorage;
 use Wexample\SymfonyPreference\Service\Storage\DatabasePreferenceStorage;
 use Wexample\SymfonyPreference\Service\Storage\SessionPreferenceStorage;
 
@@ -21,7 +22,7 @@ class WexampleSymfonyPreferenceExtension extends AbstractWexampleSymfonyExtensio
         $storage = PreferenceStorage::from(
             $container->hasParameter(self::PARAMETER_STORAGE)
                 ? $container->getParameter(self::PARAMETER_STORAGE)
-                : PreferenceStorage::Session->value
+                : PreferenceStorage::User->value
         );
 
         $this->loadConfig(
@@ -31,7 +32,11 @@ class WexampleSymfonyPreferenceExtension extends AbstractWexampleSymfonyExtensio
 
         $container->setAlias(
             PreferenceStorageInterface::class,
-            $storage->isDatabase() ? DatabasePreferenceStorage::class : SessionPreferenceStorage::class
+            match ($storage) {
+                PreferenceStorage::Cookie => CookiePreferenceStorage::class,
+                PreferenceStorage::Session => SessionPreferenceStorage::class,
+                PreferenceStorage::User, PreferenceStorage::Shared => DatabasePreferenceStorage::class,
+            }
         );
     }
 }

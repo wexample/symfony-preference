@@ -1,8 +1,8 @@
 parameters:
-    # Where preferences are kept (Enum\PreferenceStorage): the session, or the
-    # database per user (`user`) or for everybody (`shared`, a tool without
-    # accounts).
-    wexample_symfony_preference.storage: session
+    # Where preferences are kept (Enum\PreferenceStorage): a cookie, the
+    # session, or the database per user (`user`, a cookie for a visitor not
+    # signed in) or for everybody (`shared`, a tool without accounts).
+    wexample_symfony_preference.storage: user
 
 services:
     _defaults:
@@ -11,4 +11,4 @@ services:
         public: false
 
     Wexample\SymfonyPreference\:
-        resource: '../../{Repository,Service}'
+        resource: '../../{Controller,EventSubscriber,Repository,Service}'

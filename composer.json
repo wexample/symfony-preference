@@ -1,6 +1,6 @@
 {
   "name": "wexample/symfony-preference",
-  "description": "Preferences kept per owner — a user, or everybody — in the session or the database",
+  "description": "Preferences kept per owner — a user, or everybody — in a cookie, the session or the database",
   "version": "2.1.0",
   "type": "library",
   "license": "MIT",

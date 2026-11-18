@@ -12,8 +12,8 @@ use Symfony\Component\Security\Core\User\InMemoryUser;
 use Wexample\SymfonyPreference\Entity\Preference;
 use Wexample\SymfonyPreference\Repository\PreferenceRepository;
 use Wexample\SymfonyPreference\Service\PreferenceService;
-use Wexample\SymfonyPreference\Service\Storage\DatabasePreferenceStorage;
 use Wexample\SymfonyPreference\Service\Storage\CookiePreferenceStorage;
+use Wexample\SymfonyPreference\Service\Storage\DatabasePreferenceStorage;
 
 /**
  * Preferences written together reach the database in one flush; forgetting
